@@ -26,3 +26,4 @@ You will need to create two .env files for your project:
 <npm install dotenv>
 <npm install pg>
 <npm install pg-format>
+<npm install express supertest jest --save-dev>
