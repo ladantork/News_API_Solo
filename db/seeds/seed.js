@@ -1,5 +1,5 @@
 const format = require('pg-format');
-const db = require('../connection');
+const db= require('../connection.js');
 const {
   convertTimestampToDate,
   createRef,
@@ -7,8 +7,10 @@ const {
 } = require('./utils');
 
 const seed = ({ topicData, userData, articleData, commentData }) => {
-  return db
-    .query(`DROP TABLE IF EXISTS comments;`)
+  if (!db) {
+    throw new Error('Database connection not available');
+  }
+  return db.query(`DROP TABLE IF EXISTS comments;`)
     .then(() => {
       return db.query(`DROP TABLE IF EXISTS articles;`);
     })
@@ -61,7 +63,8 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
     .then(() => {
       const insertTopicsQueryStr = format(
         'INSERT INTO topics (slug, description) VALUES %L;',
-        topicData.map(({ slug, description }) => [slug, description])
+        topicData.map(({ slug, description }) => 
+        [slug, description])
       );
       const topicsPromise = db.query(insertTopicsQueryStr);
 
@@ -113,7 +116,11 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
         )
       );
       return db.query(insertCommentsQueryStr);
+    }).catch(err => {
+      console.error('Error seeding database:', err);
+      throw err;
     });
+  
 };
 
 module.exports = seed;
