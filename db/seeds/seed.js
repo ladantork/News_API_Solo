@@ -7,9 +7,7 @@ const {
 } = require('./utils');
 
 const seed = ({ topicData, userData, articleData, commentData }) => {
-  if (!db) {
-    throw new Error('Database connection not available');
-  }
+ 
   return db.query(`DROP TABLE IF EXISTS comments;`)
     .then(() => {
       return db.query(`DROP TABLE IF EXISTS articles;`);
