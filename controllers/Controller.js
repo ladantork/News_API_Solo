@@ -1,4 +1,4 @@
-const {getAllTopics,articleById} = require('../models/Models.js')
+const {getAllTopics,articleById, getAllArticles} = require('../models/Models.js')
 
 exports.getTopics =(req,res,next)=>{
     getAllTopics()
@@ -29,3 +29,14 @@ exports.getArticleId = (req, res, next) => {
         next(error);
     })
 }
+
+exports.getArticle=(req, res, next) =>{
+    getAllArticles()
+    .then((articles)=>{
+        res.status(200).send({articles});
+    }).catch (error => {
+        next(error);
+
+    })
+}
+

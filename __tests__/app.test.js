@@ -11,7 +11,7 @@ afterAll(() => db.end());
 
 
 describe('/api/topics', () => {
-    it('GET:200 sends an array of topics ', async() => {
+    it('GET:200 sends an array of topics ',() => {
         return request(app)
         .get('/api/topics')
         .expect(200)
@@ -24,7 +24,7 @@ describe('/api/topics', () => {
     });
 })
     })
-  test('returns 404 for requests to non-existent endpoints', async() => {
+  test('returns 404 for requests to non-existent endpoints',() => {
         return request(app)
           .get('/api/top')
           .expect(404)
@@ -52,18 +52,17 @@ describe('/api/topics', () => {
           .get('/api/articles/1')
           .expect(200)
           .then((response)=>{
-          expect(response.body).toHaveProperty('author');
-          expect(response.body).toHaveProperty('title');
-          expect(response.body).toHaveProperty('article_id');
-          expect(response.body).toHaveProperty('body');
-          expect(response.body).toHaveProperty('topic');
-          expect(response.body).toHaveProperty('created_at');
-          expect(response.body).toHaveProperty('votes');
-          expect(response.body).toHaveProperty('article_img_url');
+          expect(response.body.author).toBe("butter_bridge");
+          expect(response.body.title).toBe("Living in the shadow of a great man");
+          expect(response.body.article_id).toBe(1);
+          expect(response.body.body).toBe("I find this existence challenging");
+          expect(response.body.topic).toBe("mitch");
+          expect(response.body.created_at).toBe("2020-07-09T20:11:00.000Z");
+          expect(response.body.votes).toBe(100);
+          expect(response.body.article_img_url).toBe("https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700");
       });
           })
-       
-      });
+        })
       it('responds with 404 if article does not exist', () => {
       return request(app)
       .get('/api/articles/9999')
@@ -93,5 +92,44 @@ describe('/api/topics', () => {
         
     });
 
-
-    
+    describe('/api/articles', () => {
+      it('GET:200 sends an array of articles object ', () => {
+          return request(app)
+          .get('/api/articles')
+          .expect(200)
+          .then((response) => {
+            expect(response.body).toHaveProperty('articles');
+            expect(Array.isArray(response.body.articles)).toBe(true);
+            expect(response.body.articles.length).toBe(13);
+            if (response.body.articles.length > 0) {
+              const article = response.body.articles[0];
+              expect(article).toHaveProperty('author');
+              expect(article).toHaveProperty('title');
+              expect(article).toHaveProperty('article_id');
+              expect(article).toHaveProperty('topic');
+              expect(article).toHaveProperty('created_at');
+              expect(article).toHaveProperty('votes');
+              expect(article).toHaveProperty('article_img_url');
+              expect(article).toHaveProperty('comment_count');
+              if (article.comment_count > 0) {
+                expect(typeof article.comment_count).toBe('number');
+            }else {
+              expect(article.comment_count).toBe(0);
+          }
+              
+          }
+          })
+        })
+      })
+      describe('GET /api/articles', () => {
+        it('Returns 404 if it is a bad request ', () => {
+            return request(app)
+            .get('/api/$Tg')
+            .expect(404)
+            .then((response)=>{
+              expect(response.statusCode).toBe(404);
+              expect(response.body).toHaveProperty('msg', "Not found")
+            })
+        });
+    });
+      
