@@ -132,4 +132,47 @@ describe('/api/topics', () => {
             })
         });
     });
+    describe('/api/articles/:article_id/comments', () => {
+      it('GET 200 and return comments for the specified article ID', () => {
+          return request(app)
+          .get('/api/articles/1/comments')
+          .expect(200)
+          .then((response) => {
+            expect(Array.isArray(response.body.comments)).toBe(true);
+            expect(response.body.comments.length).toBe(11);
+            response.body.comments.forEach(comment => {
+            expect(typeof comment).toBe('object')
+          if(comment.comment_id === 9){
+            expect(comment.body).toBe('Superficially charming');
+            expect(comment.article_id).toBe(1);
+            expect(comment.author).toBe('icellusedkars');
+            expect(comment.votes).toBe(0);
+            expect(comment.created_at).toBe("2020-01-01T03:08:00.000Z");
+            }
+            })
+          })
+        })
+      })
+      describe('/api/articles/:article_id/comments', () => {
+        it('returns a 400 when article_id is not a number ', () => {
+            return request(app)
+                .get('/api/articles/td/comments') 
+                .expect(400) 
+                .then((response)=>{
+                  expect(response.body.error).toBe( "Invalid article ID format")
+                })
+        });
+      })
+      describe('/api/articles/:article_id/comments', () => {
+        it('Returns 404 empty array if article id as number is not valid ', () => {
+            return request(app)
+            .get('/api/articles/99999/comments')
+            .expect(404)
+            .then((response)=>{
+              expect(response.body.error).toBe("No comments found for this article")
+             
+            })
+        });
+    });
+  
       
