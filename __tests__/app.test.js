@@ -11,7 +11,7 @@ beforeEach(() => seed (data))
 afterAll(() => db.end());
 
 
-describe('/api/topics', () => {
+describe('GET /api/topics', () => {
     it('GET:200 sends an array of topics ',() => {
         return request(app)
         .get('/api/topics')
@@ -35,7 +35,7 @@ describe('/api/topics', () => {
           
       });
     })
-    describe('/api/', () => {
+    describe('GET /api/', () => {
         it("200 respond with /api  json data", () => {
          return request(app)
          .get('/api')
@@ -117,23 +117,20 @@ describe('/api/topics', () => {
             }else {
               expect(article.comment_count).toBe(0);
           }
-              
-          }
+              }
           })
         })
-      })
-      describe('GET /api/articles', () => {
         it('Returns 404 if it is a bad request ', () => {
-            return request(app)
-            .get('/api/$Tg')
-            .expect(404)
-            .then((response)=>{
-              expect(response.statusCode).toBe(404);
-              expect(response.body).toHaveProperty('msg', "Not found")
-            })
-        });
-    });
-    describe('/api/articles/:article_id/comments', () => {
+          return request(app)
+          .get('/api/$Tg')
+          .expect(404)
+          .then((response)=>{
+            expect(response.statusCode).toBe(404);
+            expect(response.body).toHaveProperty('msg', "Not found")
+          })
+      })
+      })
+    describe('GET /api/articles/:article_id/comments', () => {
       it('GET 200 and return comments for the specified article ID', () => {
           return request(app)
           .get('/api/articles/1/comments')
@@ -153,29 +150,26 @@ describe('/api/topics', () => {
             })
           })
         })
-      })
-      describe('/api/articles/:article_id/comments', () => {
         it('returns a 400 when article_id is not a number ', () => {
-            return request(app)
-                .get('/api/articles/td/comments') 
-                .expect(400) 
-                .then((response)=>{
-                  expect(response.body.error).toBe( "Invalid article ID format")
-                })
-        });
+          return request(app)
+              .get('/api/articles/td/comments') 
+              .expect(400) 
+              .then((response)=>{
+                expect(response.body.error).toBe( "Invalid article ID format")
+              })
       })
-      describe('/api/articles/:article_id/comments', () => {
-        it('Returns 404 empty array if article id as number is not valid ', () => {
-            return request(app)
-            .get('/api/articles/99999/comments')
-            .expect(404)
-            .then((response)=>{
-              expect(response.body.error).toBe("No comments found for this article")
-             
-            })
-        });
+      it('Returns 404 empty array if article id as number is not valid ', () => {
+        return request(app)
+        .get('/api/articles/99999/comments')
+        .expect(404)
+        .then((response)=>{
+          expect(response.body.error).toBe("No comments found for this article")
+         
+        })
     });
-    describe('/api/articles/:article_id/comments', () => {
+      })
+      
+    describe('POST /api/articles/:article_id/comments', () => {
       const newComment =
          {username: "butter_bridge" ,  
           body : 'My very first post inserted into comment table'}
@@ -206,7 +200,6 @@ describe('/api/topics', () => {
     })
     describe('/api/articles/:article_id/comments', () => {
       it('Returns 404 when no comments found ', () => {
-        
           return request(app)
           .post('/api/articles/6/commen')
           .send(newComment)
@@ -217,4 +210,42 @@ describe('/api/topics', () => {
       });
   
   }) 
+  describe('PATCH /api/articles/:article_id', () => {
+    const updateArticleVote ={ inc_votes : 10}
+    it('returns updated article by article_id',()=>{  
+      return request(app)
+            .patch('/api/articles/1')
+            .send(updateArticleVote)
+            .expect(200)
+            .then(({ body: {article_id,title, topic,author,body, created_at, votes, article_img_url}}) => {
+              expect(votes).toBe(110)
+              expect(article_id).toBe(1)
+              expect(title).toBe('Living in the shadow of a great man')
+              expect(topic).toBe('mitch')
+              expect(author).toBe('butter_bridge')
+              expect(body).toBe('I find this existence challenging')
+              expect(created_at).toBe('2020-07-09T20:11:00.000Z')
+              expect(article_img_url).toBe('https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700')
+          })
+    })
+    it('returns 400 for invalid article_id',()=>{
+      return request(app)
+      .patch('/api/articles/lkj')
+      .send(updateArticleVote)
+      .expect(400)
+      .then(({body})=>{
+        expect(body.error).toBe('Invalid article ID format');    
+    })
+    })
+      it('Returns 404 when article format is valid but it is not in database ', () => {
+          return request(app)
+          .post('/api/articles/6101')
+          .send(updateArticleVote)
+          .expect(404)
+          .then(({body})=>{
+            expect(body.msg).toBe('Not found' )
+          })
+      })
 })
+
+    })

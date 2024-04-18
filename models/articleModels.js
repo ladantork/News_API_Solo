@@ -1,16 +1,5 @@
 const db = require('../db/connection.js')
 
-exports.getAllTopics = () => {
-  return db
-      .query('SELECT * FROM topics;')
-      .then((result) => {
-          const topics = result.rows.map(row => ({
-              slug: row.slug,
-              description: row.description
-          }));
-          return topics;
-      })
-    }
 
     exports.articleById = (article_id) => {
         return db
@@ -53,25 +42,16 @@ exports.getAllTopics = () => {
            
     }
 
-    exports.getAllComments = (article_id)=>{
+      exports.patchUpdateArticle = (article_id,{inc_votes})=>{
         return db
-        .query('SELECT * FROM comments WHERE article_id = $1  ORDER BY created_at DESC;', [article_id])
-        .then((result) => {
-            const comments = result.rows
-            return comments;
-            
-          })
-        }
-    exports.insertComments = (article_id, author, body) => {
-      return db
-          .query(
-            'INSERT INTO comments (article_id,author, body) VALUES ($1, $2, $3)RETURNING *;',[article_id, author, body])
-          .then((result) => {
-            console.log(result.rows[0])
-            return result.rows[0];
-          
-          });
-      };
+        .query(
+            'UPDATE articles SET votes = votes +$1 WHERE article_id = $2 RETURNING *',
+            [inc_votes,article_id])
+            .then(({rows})=>{
+                return rows[0]
+            })
+
+      }
     
     
 
