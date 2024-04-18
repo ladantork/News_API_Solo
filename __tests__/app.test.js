@@ -1,4 +1,5 @@
 const request = require('supertest');
+
 const app = require('../app.js');
 const db = require('../db/connection.js')
 const seed = require ('../db/seeds/seed.js')
@@ -174,5 +175,46 @@ describe('/api/topics', () => {
             })
         });
     });
+    describe('/api/articles/:article_id/comments', () => {
+      const newComment =
+         {username: "butter_bridge" ,  
+          body : 'My very first post inserted into comment table'}
+      it('Add a comment for specific article from it/s id',()=>{ 
+        return request(app)
+        .post('/api/articles/6/comments')
+        .send(newComment)
+        .expect(201)
+        .then((response)=>{
+          expect(response.body).toHaveProperty('author', newComment.username);
+          expect(response.body).toHaveProperty('body', newComment.body);
+          expect(response.body.comment_id).toBe(19)
+          expect(response.body.author).toBe("butter_bridge")
+          expect(response.body.body).toBe('My very first post inserted into comment table')
+          expect(response.body.votes).toBe(0)
+          expect(response.body).toHaveProperty('created_at')
+          expect(new Date(response.body.created_at)).toBeInstanceOf(Date);
+        })
+      })
+      it('returns 400 for invalid request body',()=>{
+        return request(app)
+        .post('/api/articles/lkj/comments')
+        .send(newComment)
+        .expect(400)
+        .then((response)=>{
+          expect(response.body.error).toBe('Invalid article ID format');    
+      })
+    })
+    describe('/api/articles/:article_id/comments', () => {
+      it('Returns 404 when no comments found ', () => {
+        
+          return request(app)
+          .post('/api/articles/6/commen')
+          .send(newComment)
+          .expect(404)
+          .then((response)=>{
+            expect(response.body.msg).toBe('Not found' )
+          })
+      });
   
-      
+  }) 
+})

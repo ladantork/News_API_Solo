@@ -2,7 +2,7 @@ const db = require('../db/connection.js')
 
 exports.getAllTopics = () => {
   return db
-      .query(`SELECT * FROM topics;`)
+      .query('SELECT * FROM topics;')
       .then((result) => {
           const topics = result.rows.map(row => ({
               slug: row.slug,
@@ -16,7 +16,6 @@ exports.getAllTopics = () => {
         return db
         .query('SELECT * FROM articles WHERE article_id = $1;', [article_id])
         .then((result) => {
-         
             return result.rows[0];
           });
         }
@@ -59,12 +58,20 @@ exports.getAllTopics = () => {
         .query('SELECT * FROM comments WHERE article_id = $1  ORDER BY created_at DESC;', [article_id])
         .then((result) => {
             const comments = result.rows
-          
-            console.log(comments)
             return comments;
             
           })
         }
+    exports.insertComments = (article_id, author, body) => {
+      return db
+          .query(
+            'INSERT INTO comments (article_id,author, body) VALUES ($1, $2, $3)RETURNING *;',[article_id, author, body])
+          .then((result) => {
+            console.log(result.rows[0])
+            return result.rows[0];
+          
+          });
+      };
     
     
 
