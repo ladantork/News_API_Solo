@@ -70,6 +70,18 @@
       "votes": 0,
       "created_at": "2020-01-01T03:08:00.000Z"
     }
+},
+"POST /api/articles/:article_id/comments": {
+  "description": "INSERT into comments object for specific article_id on username which is author and body as a message",
+  "queries": ["article_id","author","body"],
+  "exampleResponse": {
+    "comment_id": 19,
+   " body": "My very first post inserted into comment table",
+    "article_id": 6,
+    "author": "butter_bridge",
+    "votes": 0,
+    "created_at": "2024-04-18T15:51:12.835Z"
+  }
 }
 }
 
