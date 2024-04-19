@@ -273,3 +273,30 @@ describe('DELETE /api/comments/:comment_id', () => {
 })
 })
 
+describe('GET /api/users', () => {
+    it('GET:200 sends an array of users object ', () => {
+        return request(app)
+        .get('/api/users')
+        .expect(200)
+        .then((response) => {
+          expect(response.body).toHaveProperty('users');
+          expect(Array.isArray(response.body.users)).toBe(true);
+          expect(response.body.users.length).toBe(4);
+          response.body.users.forEach((user) => {
+              expect(typeof user.username).toBe('string');
+              expect(typeof user.name).toBe('string');
+              expect(typeof user.avatar_url).toBe('string');
+  });
+})
+  })
+test('returns 404 for requests to non-existent endpoints',() => {
+      return request(app)
+        .get('/api/use')
+        .expect(404)
+        .then((response) => {
+          expect(response.body.msg).toBe('Not found');
+        })
+        
+    })
+  })
+
