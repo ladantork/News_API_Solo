@@ -21,7 +21,8 @@ exports.getArticleId = (req, res, next) => {
 }
 
 exports.getArticle=(req, res, next) =>{
-    getAllArticles()
+    const topic = req.query
+    getAllArticles(topic)
     .then((articles)=>{
         res.status(200).send({articles});
     }).catch (error => {
@@ -44,3 +45,4 @@ patchUpdateArticle(article_id,inc_votes)
 }).catch(next) 
 
 }
+
