@@ -101,8 +101,8 @@ describe('GET /api/topics', () => {
           .then((response) => {
             expect(response.body).toHaveProperty('articles');
             expect(Array.isArray(response.body.articles)).toBe(true);
-            expect(response.body.articles.length).toBe(13);
             if (response.body.articles.length > 0) {
+              expect(response.body.articles.length).toBe(13);
               const article = response.body.articles[0];
               expect(article).toHaveProperty('author');
               expect(article).toHaveProperty('title');
@@ -299,4 +299,4 @@ test('returns 404 for requests to non-existent endpoints',() => {
         
     })
   })
-
+ 

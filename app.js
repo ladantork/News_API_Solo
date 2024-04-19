@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const {getArticleId, getArticle,updateArticle } = require('./controllers/articleController.js');
+const {getArticleId, getArticle,updateArticle} = require('./controllers/articleController.js');
 const {getTopics} = require('./controllers/topicsController.js')
 const{getComments, postComments,deleteComment} = require('./controllers/commentControllers.js')
 const{getUsers} = require('./controllers/userController.js')
@@ -17,6 +17,7 @@ app.post('/api/articles/:article_id/comments',postComments)
 app.patch('/api/articles/:article_id', updateArticle)
 app.delete('/api/comments/:comment_id',deleteComment)
 app.get('/api/users',getUsers)
+
 
 
 

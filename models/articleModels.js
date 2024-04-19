@@ -9,38 +9,37 @@ const db = require('../db/connection.js')
           });
         }
 
-    exports.getAllArticles = () => {
-        return db
-        .query('SELECT * FROM articles;')
+    exports.getAllArticles = (topic) => {
+        let query = 'SELECT articles.*, COUNT(comments.comment_id) AS comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id';
+        const values = [];
+    
+        if (topic) {
+            query += ' WHERE articles.topic = $1';
+            values.push(topic);
+        }
+    
+        query += ' GROUP BY articles.article_id';
+    
+        return db.query(query, values)
             .then((result) => {
-                const articlesArray = [];
-                // Map each article to a promise that fetches its comment count
-                const commentCountPromises = result.rows.map(article => {
-                    const articleObject = {
-                        author: article.author,
-                        title: article.title,
-                        article_id: article.article_id,
-                        topic: article.topic,
-                        created_at: article.created_at,
-                        votes: article.votes,
-                        article_img_url: article.article_img_url
-                    };
-                    const countQuery = 'SELECT COUNT(*) AS comment_count FROM comments WHERE article_id = $1;';
-                    return db
-                    .query(countQuery, [article.article_id])
-                        .then((result) => {
-                            const parsedCommentCount = parseInt(result.rows[0].comment_count)
-                            articleObject.comment_count = parsedCommentCount
-                            return articleObject; // Now article object with comment count
-                        });
-                });
-                return Promise.all(commentCountPromises)
-                    .then((articlesCounts) => {
-                        return articlesCounts;
-                    });
+                const articles = result.rows.map(article => ({
+                    author: article.author,
+                    title: article.title,
+                    article_id: article.article_id,
+                    topic: article.topic,
+                    created_at: article.created_at,
+                    votes: article.votes,
+                    article_img_url: article.article_img_url,
+                    comment_count: parseInt(article.comment_count) || 0 
+                }));
+                if (articles.length === 0) {
+                    return [];
+                }
+                return articles;
             })
-           
-    }
+            
+    };
+    
 
       exports.patchUpdateArticle = (article_id,{inc_votes})=>{
         return db
@@ -52,7 +51,6 @@ const db = require('../db/connection.js')
             })
 
       }
-    
     
 
     
