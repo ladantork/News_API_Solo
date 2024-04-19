@@ -112,11 +112,13 @@ describe('GET /api/topics', () => {
               expect(article).toHaveProperty('votes');
               expect(article).toHaveProperty('article_img_url');
               expect(article).toHaveProperty('comment_count');
+              
               if (article.comment_count > 0) {
                 expect(typeof article.comment_count).toBe('number');
             }else {
               expect(article.comment_count).toBe(0);
           }
+          expect(article).not.toHaveProperty('body')
               }
           })
         })
