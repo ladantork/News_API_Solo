@@ -1,4 +1,4 @@
-const{getAllComments,insertComments} = require('../models/commentsModel.js')
+const{getAllComments,insertComments,deleteCommentModel} = require('../models/commentsModel.js')
 exports.getComments =(req,res,next)=>{
     const{article_id} = req.params
     if (isNaN(parseInt(article_id))) {
@@ -25,5 +25,20 @@ exports.postComments=(req,res,next)=>{
         .then((comments)=>{
         res.status(201).send(comments)
 }).catch(next)
+}
+
+exports.deleteComment=(req,res,next)=>{
+    const {comment_id} = req.params;
+    if (isNaN(parseInt(comment_id))) {
+        return res.status(400).send( {error: 'Invalid comment ID format' });
+    } 
+  deleteCommentModel(comment_id)
+    .then(()=>{
+        
+        res.status(204).send()
+     }).catch (error => {
+        next(error);
+
+    })
 }
  
