@@ -247,5 +247,29 @@ describe('GET /api/topics', () => {
           })
       })
 })
-
+describe('DELETE /api/comments/:comment_id', () => {
+  it('DELETE 204,delete the specific comment according to given comment_id  from database and return 204 status with no content ',()=>{  
+    return request(app)
+          .delete('/api/comments/1')
+          .expect(204)
+          
+          })
+  })
+  test("DELETE 400 , Delete requests with an invalid comment_id format return 400 status as a 'Invalid comment ID format'", () => {
+    return request(app)
+    .delete("/api/comments/ladan")
+    .expect(400)
+    .then(({body})=>{
+      expect(body.error).toBe('Invalid comment ID format')
     })
+  })
+  it('DELETE 404, when comment format is valid but it is not in database return 404 status as "Not found" ', () => {
+    return request(app)
+    .delete('/api/comment/6101')
+    .expect(404)
+    .then(({body})=>{
+      expect(body.msg).toBe('Not found' )
+    })
+})
+})
+
