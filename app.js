@@ -5,6 +5,8 @@ const {getTopics} = require('./controllers/topicsController.js')
 const{getComments, postComments,deleteComment} = require('./controllers/commentControllers.js')
 const{getUsers} = require('./controllers/userController.js')
 const{getApi} = require('./controllers/apiController.js')
+const errorHandlers = require('./middleware/errorHandlers.js');
+const { DatabaseError } = require('pg');
 
 app.use(express.json());
 
@@ -17,21 +19,15 @@ app.post('/api/articles/:article_id/comments',postComments)
 app.patch('/api/articles/:article_id', updateArticle)
 app.delete('/api/comments/:comment_id',deleteComment)
 app.get('/api/users',getUsers)
+// app.get('')
 
+app.use((req, res, next) => {
+    res.status(404).send({ msg: 'Not found'})
+})
 
-
-
-app.use('*',(err,req, res, next) => {
-    if (err.code === '23502' || err.code === '23502'){
-        res.status(400).send({ msg: 'Bad request'}); 
-    }else {
-        res.status(500).send({ error: 'Internal Server Error' });
-    }    
-    })
-
-app.use('*',(req, res, next) => {
-    res.status(404).send({ msg: 'Not found' });
-});
+app.use(errorHandlers.customErrors)
+app.use(errorHandlers.serverErrors)
+app.use(errorHandlers.databaseError)
 
 
 module.exports = app;

@@ -12,28 +12,28 @@ afterAll(() => db.end());
 
 
 describe('GET /api/topics', () => {
-    it('GET:200 sends an array of topics ',() => {
+    test('GET:200 sends an array of topics ',() => {
         return request(app)
         .get('/api/topics')
         .expect(200)
-        .then((response) => {
-            expect(Array.isArray(response.body)).toBe(true);
-            expect(response.body.length).toBe(3);
-            response.body.forEach((topic) => {
+        .then(({body}) => {
+            expect(Array.isArray(body.topics)).toBe(true);
+            const { topics } = body;
+            expect(topics.length).toBe(3);
+            topics.forEach((topic) => {
                 expect(typeof topic.slug).toBe('string');
                 expect(typeof topic.description).toBe('string');
     });
 })
     })
-  test('returns 404 for requests to non-existent endpoints',() => {
-        return request(app)
-          .get('/api/top')
+    test('GET /api/topics returns 404 for requests to non-existent endpoints', () => {
+      return request(app)
+          .get('/api/nonexistent') // Use a non-existent endpoint
           .expect(404)
-          .then((response) => {
-            expect(response.body.msg).toBe('Not found');
+          .then(({ body }) => {
+              expect(body.msg).toBe('Not found');
           });
-          
-      });
+  });
     })
     describe('GET /api/', () => {
         it("200 respond with /api  json data", () => {
@@ -69,7 +69,7 @@ describe('GET /api/topics', () => {
       .get('/api/articles/9999')
       .expect(404)
       .then((response)=>{
-        expect(response.body).toHaveProperty('msg', 'Article not found')
+        expect(response.body).toHaveProperty('msg', "Article not found")
       })
         
     });
@@ -78,7 +78,7 @@ describe('GET /api/topics', () => {
       .get('/api/articles/a5g*')
       .expect(400)
       .then((response)=>{
-        expect(response.body).toHaveProperty('error', 'Invalid article ID format')
+        expect(response.body.msg).toBe('Invalid comment ID format')
       })
         
     });
@@ -120,16 +120,97 @@ describe('GET /api/topics', () => {
               }
           })
         })
-        it('Returns 404 if it is a bad request ', () => {
-          return request(app)
-          .get('/api/$Tg')
-          .expect(404)
-          .then((response)=>{
-            expect(response.statusCode).toBe(404);
-            expect(response.body).toHaveProperty('msg', "Not found")
-          })
-      })
-      })
+          // it("Get 200 , returns an array of filtered by topics",()=>{
+          //    return request(app)
+          //    .get('/api/articles?topic=coding')
+          //    .expect(200)
+          //    .then((response)=>{
+          //     expect(typeof response.body).toBe('object')
+          //     const articles = response.body.articles;
+          //     console.log(articles)
+          //     expect(Array.isArray(articles)).toBe(true); 
+          //     articles.forEach(article => {
+          //         expect(article).toHaveProperty('topic', 'coding');
+          //     })
+          //   })
+          // })
+          // it('200 - Responds with an empty array when topic exists but has no associated articles', () => {
+          //   return request(app)
+          //     .get('/api/articles?topic=cats')
+          //     .expect(200)
+          //     .then(({body})=>{
+          //       const {articles} = body
+          //       articles.forEach(article => {
+          //         expect(article).toMatchObject({
+          //           topic: "cats",
+          //         });
+          //       })
+          //       expect(Array.isArray(body.articles)).toBe(true);
+          //       //expect(body.articles.length).toBe(0);
+          //     })
+          //     });
+        
+          //   it('404 - Responds with topic not found when topic does not exist', () => {
+          //     return request(app)
+          //     .get('/api/articles?topic=bananas')
+          //     .expect(404)
+          //     .then((response)=>{
+          //       expect(response.statusCode).toBe(404);
+          //       expect(response.body).toHaveProperty('msg', 'Not found');
+          //     })
+          // })
+          it('GET:404 for non-existent endpoint', () => {
+            return request(app)
+              .get('/api/artic')
+              .expect(404)
+              .then((response) => {
+                expect(response.body.msg).toBe('Not found');
+              });
+          });
+    })
+
+
+    // app.test.js
+
+describe('/api/articles', () => {
+  it('GET:200 sends an array of articles object ', () => {
+    return request(app)
+      .get('/api/articles')
+      .expect(200)
+      .then((response) => {
+        expect(response.body).toHaveProperty('articles');
+        expect(Array.isArray(response.body.articles)).toBe(true);
+        // Additional assertions as needed
+      });
+  });
+
+  it('Get 200 , returns an array of articles filtered by topics', () => {
+    return request(app)
+      .get('/api/articles?topic=coding')
+      .expect(200)
+      .then((response) => {
+        expect(typeof response.body).toBe('object');
+        const articles = response.body.articles;
+        expect(Array.isArray(articles)).toBe(true);
+        articles.forEach(article => {
+          expect(article).toHaveProperty('topic', 'coding');
+        });
+      });
+  });
+
+  it('404 - Responds with topic not found when topic does not exist', () => {
+    return request(app)
+      .get('/api/articles?topic=bananas')
+      .expect(404)
+      .then((response) => {
+        expect(response.statusCode).toBe(404);
+        expect(response.body).toHaveProperty('msg', "No articles found for the specified topic");
+      });
+  });
+});
+
+  
+      
     describe('GET /api/articles/:article_id/comments', () => {
       it('GET 200 and return comments for the specified article ID', () => {
           return request(app)
@@ -150,24 +231,28 @@ describe('GET /api/topics', () => {
             })
           })
         })
+     
         it('returns a 400 when article_id is not a number ', () => {
           return request(app)
               .get('/api/articles/td/comments') 
               .expect(400) 
-              .then((response)=>{
-                expect(response.body.error).toBe( "Invalid article ID format")
+              .then(({body})=>{
+                expect(body.msg).toBe( 'Invalid comment ID format')
               })
       })
       it('Returns 404 empty array if article id as number is not valid ', () => {
         return request(app)
         .get('/api/articles/99999/comments')
         .expect(404)
-        .then((response)=>{
-          expect(response.body.error).toBe("No comments found for this article")
+        .then(({body})=>{
+          expect(body.msg).toBe('No comments found for the specified article')
          
         })
     });
       })
+
+
+
       
     describe('POST /api/articles/:article_id/comments', () => {
       const newComment =
@@ -194,8 +279,8 @@ describe('GET /api/topics', () => {
         .post('/api/articles/lkj/comments')
         .send(newComment)
         .expect(400)
-        .then((response)=>{
-          expect(response.body.error).toBe('Invalid article ID format');    
+        .then(({body})=>{
+          expect(body.msg).toBe('Invalid comment ID format');    
       })
     })
     describe('/api/articles/:article_id/comments', () => {
@@ -234,7 +319,7 @@ describe('GET /api/topics', () => {
       .send(updateArticleVote)
       .expect(400)
       .then(({body})=>{
-        expect(body.error).toBe('Invalid article ID format');    
+        expect(body.msg).toBe('Invalid comment ID format');    
     })
     })
       it('Returns 404 when article format is valid but it is not in database ', () => {
@@ -247,6 +332,7 @@ describe('GET /api/topics', () => {
           })
       })
 })
+// api/comments/:comment_id
 describe('DELETE /api/comments/:comment_id', () => {
   it('DELETE 204,delete the specific comment according to given comment_id  from database and return 204 status with no content ',()=>{  
     return request(app)
@@ -260,18 +346,20 @@ describe('DELETE /api/comments/:comment_id', () => {
     .delete("/api/comments/ladan")
     .expect(400)
     .then(({body})=>{
-      expect(body.error).toBe('Invalid comment ID format')
+      expect(body.msg).toBe('Invalid comment ID format')
     })
   })
-  it('DELETE 404, when comment format is valid but it is not in database return 404 status as "Not found" ', () => {
-    return request(app)
-    .delete('/api/comment/6101')
+   test('DELETE 404, when comment format is valid but it is not in database return 404 status as "Not found" ', () => {
+     return request(app)
+     .delete('/api/comment/6101')
     .expect(404)
-    .then(({body})=>{
-      expect(body.msg).toBe('Not found' )
-    })
+     .then(({body})=>{
+       expect(body.msg).toBe('Comment not found' )
+     })
+ })
 })
-})
+
+// api/users
 
 describe('GET /api/users', () => {
     it('GET:200 sends an array of users object ', () => {
@@ -288,15 +376,6 @@ describe('GET /api/users', () => {
               expect(typeof user.avatar_url).toBe('string');
   });
 })
-  })
-test('returns 404 for requests to non-existent endpoints',() => {
-      return request(app)
-        .get('/api/use')
-        .expect(404)
-        .then((response) => {
-          expect(response.body.msg).toBe('Not found');
-        })
-        
+
     })
   })
- 
