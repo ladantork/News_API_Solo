@@ -6,7 +6,7 @@ const{getComments, postComments,deleteComment} = require('./controllers/commentC
 const{getUsers} = require('./controllers/userController.js')
 const{getApi} = require('./controllers/apiController.js')
 const errorHandlers = require('./middleware/errorHandlers.js');
-const { DatabaseError } = require('pg');
+//const { DatabaseError } = require('pg');
 
 app.use(express.json());
 
@@ -19,7 +19,7 @@ app.post('/api/articles/:article_id/comments',postComments)
 app.patch('/api/articles/:article_id', updateArticle)
 app.delete('/api/comments/:comment_id',deleteComment)
 app.get('/api/users',getUsers)
-// app.get('')
+
 
 app.use((req, res, next) => {
     res.status(404).send({ msg: 'Not found'})
