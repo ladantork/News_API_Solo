@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 
-
+const cors = require('cors');
 const {getArticleId, getArticle,updateArticle} = require('./controllers/articleController.js');
 const {getTopics} = require('./controllers/topicsController.js')
 const{getComments, postComments,deleteComment} = require('./controllers/commentControllers.js')
@@ -11,6 +11,7 @@ const errorHandlers = require('./middleware/errorHandlers.js');
 //const { DatabaseError } = require('pg');
 
 app.use(express.json());
+app.use(cors());
 
 app.get('/api/topics', getTopics);
 app.get('/api',getApi)
